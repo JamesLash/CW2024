@@ -8,8 +8,8 @@ public class Boss extends FighterPlane {
 	private static final double INITIAL_X_POSITION = 1000.0;
 	private static final double INITIAL_Y_POSITION = 400;
 	private static final double PROJECTILE_Y_POSITION_OFFSET = 75.0;
-	private static final double BOSS_FIRE_RATE = .04;
-	private static final double BOSS_SHIELD_PROBABILITY = .002;
+	private static final double BOSS_FIRE_RATE = 0.04;
+	private static final double BOSS_SHIELD_PROBABILITY = 0.05; // Reduced for realism
 	private static final int IMAGE_HEIGHT = 300;
 	private static final int VERTICAL_VELOCITY = 8;
 	private static final int HEALTH = 100;
@@ -18,9 +18,11 @@ public class Boss extends FighterPlane {
 	private static final int MAX_FRAMES_WITH_SAME_MOVE = 10;
 	private static final int Y_POSITION_UPPER_BOUND = -100;
 	private static final int Y_POSITION_LOWER_BOUND = 475;
-	private static final int MAX_FRAMES_WITH_SHIELD = 500;
+	private static final int MAX_FRAMES_WITH_SHIELD = 200; // Duration for shield
+
 	private final List<Integer> movePattern;
 	private boolean isShielded;
+	private boolean shieldUsed; // Tracks if the shield has been used
 	private int consecutiveMovesInSameDirection;
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
@@ -32,19 +34,10 @@ public class Boss extends FighterPlane {
 		indexOfCurrentMove = 0;
 		framesWithShieldActivated = 0;
 		isShielded = false;
+		shieldUsed = false; // Shield has not been used yet
 		initializeMovePattern();
 	}
 
-	@Override
-	public void updatePosition() {
-		double initialTranslateY = getTranslateY();
-		moveVertically(getNextMove());
-		double currentPosition = getLayoutY() + getTranslateY();
-		if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
-			setTranslateY(initialTranslateY);
-		}
-	}
-	
 	@Override
 	public void updateActor() {
 		updatePosition();
@@ -52,15 +45,22 @@ public class Boss extends FighterPlane {
 	}
 
 	@Override
-	public ActiveActorDestructible fireProjectile() {
-		return bossFiresInCurrentFrame() ? new BossProjectile(getProjectileInitialPosition()) : null;
-	}
-	
-	@Override
 	public void takeDamage() {
 		if (!isShielded) {
 			super.takeDamage();
+			System.out.println("Boss took damage! Current health: " + getHealth());
+			if (getHealth() <= 0) {
+				destroy();
+				System.out.println("Boss destroyed!");
+			}
+		} else {
+			System.out.println("Boss is shielded and cannot take damage!");
 		}
+	}
+
+	@Override
+	public ActiveActorDestructible fireProjectile() {
+		return bossFiresInCurrentFrame() ? new BossProjectile(getProjectileInitialPosition()) : null;
 	}
 
 	private void initializeMovePattern() {
@@ -73,9 +73,44 @@ public class Boss extends FighterPlane {
 	}
 
 	private void updateShield() {
-		if (isShielded) framesWithShieldActivated++;
-		else if (shieldShouldBeActivated()) activateShield();	
-		if (shieldExhausted()) deactivateShield();
+		if (isShielded) {
+			framesWithShieldActivated++;
+		} else if (!shieldUsed && shieldShouldBeActivated()) { // Shield can only be used once
+			activateShield();
+			System.out.println("Boss shield activated!");
+		}
+		if (shieldExhausted()) {
+			deactivateShield();
+			System.out.println("Boss shield deactivated!");
+		}
+	}
+
+	private boolean shieldShouldBeActivated() {
+		return Math.random() < BOSS_SHIELD_PROBABILITY;
+	}
+
+	private boolean shieldExhausted() {
+		return framesWithShieldActivated >= MAX_FRAMES_WITH_SHIELD;
+	}
+
+	private void activateShield() {
+		isShielded = true;
+		shieldUsed = true; // Mark shield as used
+	}
+
+	private void deactivateShield() {
+		isShielded = false;
+		framesWithShieldActivated = 0;
+	}
+
+	@Override
+	public void updatePosition() {
+		double initialTranslateY = getTranslateY();
+		moveVertically(getNextMove());
+		double currentPosition = getLayoutY() + getTranslateY();
+		if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
+			setTranslateY(initialTranslateY);
+		}
 	}
 
 	private int getNextMove() {
@@ -100,21 +135,7 @@ public class Boss extends FighterPlane {
 		return getLayoutY() + getTranslateY() + PROJECTILE_Y_POSITION_OFFSET;
 	}
 
-	private boolean shieldShouldBeActivated() {
-		return Math.random() < BOSS_SHIELD_PROBABILITY;
+	public boolean isShielded() {
+		return isShielded;
 	}
-
-	private boolean shieldExhausted() {
-		return framesWithShieldActivated == MAX_FRAMES_WITH_SHIELD;
-	}
-
-	private void activateShield() {
-		isShielded = true;
-	}
-
-	private void deactivateShield() {
-		isShielded = false;
-		framesWithShieldActivated = 0;
-	}
-
 }
