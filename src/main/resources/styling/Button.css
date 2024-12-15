@@ -1,0 +1,16 @@
+.button {
+    -fx-font-size: 18px;
+    -fx-background-color: linear-gradient(#ff5400, #be1d00);
+    -fx-text-fill: white;
+    -fx-border-color: #be1d00;
+    -fx-border-width: 2px;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.button:hover {
+    -fx-background-color: black; /* Change background to black */
+    -fx-text-fill: red;          /* Change text color to red */
+    -fx-cursor: hand;            /* Use pointer cursor */
+}
