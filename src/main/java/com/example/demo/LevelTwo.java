@@ -40,10 +40,9 @@ public class LevelTwo extends LevelParent {
 	@Override
 	protected void checkIfGameOver() {
 		if (userIsDestroyed()) {
-			loseGame();
+			endGame(false);
 		} else if (bossFightStarted && boss.isDestroyed()) {
-			winGame();
-			System.out.println("Congratulations! You defeated the boss and won the game!");
+			endGame(true);
 		} else if (!bossFightStarted && userHasReachedKillTarget()) {
 			startBossFight();
 		}

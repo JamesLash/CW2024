@@ -7,11 +7,10 @@ import java.util.Objects;
 
 public class GameOverImage extends ImageView {
 	
-	private static final String IMAGE_NAME = "/com/example/demo/images/gameover.png";
+	private static final String IMAGE_NAME = "/com/example/demo/images/gameover.jpeg";
 
 	public GameOverImage(double xPosition, double yPosition) {
 		setImage(new Image(Objects.requireNonNull(getClass().getResource(IMAGE_NAME)).toExternalForm()) );
-//		setImage(ImageSetUp.getImageList().get(ImageSetUp.getGameOver()));
 		setLayoutX(xPosition);
 		setLayoutY(yPosition);
 	}

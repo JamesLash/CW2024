@@ -1,11 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.LevelListener;
-import com.example.demo.LevelParent;
-import com.example.demo.MenuScreen;
+import com.example.demo.*;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import com.example.demo.MenuListener;
 import com.example.demo.controller.Main;
 
 import java.lang.reflect.Constructor;
@@ -27,8 +24,8 @@ public class Controller implements LevelListener, MenuListener {
 		stage.show();
 	}
 
-	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException,
-			InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException,
+			InstantiationException, IllegalAccessException, InvocationTargetException {
 		Class<?> myClass = Class.forName(className);
 		Constructor<?> constructor = myClass.getConstructor(double.class, double.class);
 		LevelParent myLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
@@ -44,7 +41,6 @@ public class Controller implements LevelListener, MenuListener {
 			goToLevel(LEVEL_ONE_CLASS_NAME);
 		} catch (Exception e) {
 			e.printStackTrace();
-			// Handle exception, e.g., show error dialog
 		}
 	}
 
@@ -58,8 +54,13 @@ public class Controller implements LevelListener, MenuListener {
 		try {
 			goToLevel(newLevelClassName);
 		} catch (Exception e) {
-			// Handle exception, e.g., show error dialog
 			e.printStackTrace();
 		}
+	}
+
+	public void showEndingScreen(boolean victory) {
+		EndingScreen endingScreen = new EndingScreen(this);
+		Scene endingScene = endingScreen.createEndingScene(stage, victory);
+		stage.setScene(endingScene);
 	}
 }

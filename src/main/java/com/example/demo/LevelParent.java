@@ -3,6 +3,7 @@ package com.example.demo;
 
 import java.util.*;
 
+import com.example.demo.controller.Controller;
 import javafx.animation.*;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -275,6 +276,15 @@ public abstract class LevelParent {
 		enemyUnits.clear(); // Clear the enemy list
 		System.out.println("All enemies have been cleared!");
 	}
+
+	protected void endGame(boolean victory) {
+		timeline.stop();
+		LevelListener listener = levelListener;
+		if (listener instanceof Controller) {
+			((Controller) listener).showEndingScreen(victory);
+		}
+	}
+
 
 
 
