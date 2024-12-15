@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import javafx.scene.control.ProgressBar;
+
 import java.util.*;
 
 public class Boss extends FighterPlane {
@@ -29,6 +31,8 @@ public class Boss extends FighterPlane {
 
 	private final ShieldImage shieldImage;
 
+	private ProgressBar healthBar;
+
 	private final List<ActiveActorDestructible> bossProjectiles = new ArrayList<>();
 
 	public List<ActiveActorDestructible> getBossProjectiles() {
@@ -46,7 +50,27 @@ public class Boss extends FighterPlane {
 		shieldUsed = false; // Shield has not been used yet
 		initializeMovePattern();
 
-		shieldImage = new ShieldImage(INITIAL_X_POSITION, INITIAL_Y_POSITION);
+		shieldImage = new ShieldImage(INITIAL_X_POSITION+100, INITIAL_Y_POSITION+30);
+
+		// Initialize the health bar
+		healthBar = new ProgressBar(1.0); // Full health initially
+		healthBar.getStyleClass().add("progress-bar");
+
+
+		// Position the health bar relative to the boss
+		healthBar.setLayoutX(INITIAL_X_POSITION);
+		healthBar.setLayoutY(INITIAL_Y_POSITION - 20); // Slightly above the boss
+	}
+
+	// Method to update health bar position
+    protected void updateHealthBarPosition() {
+		healthBar.setLayoutX(getLayoutX() + getTranslateX() - 30);
+		healthBar.setLayoutY(getLayoutY() + getTranslateY() - 20); // Keep it above the boss
+	}
+
+	// Getter for the health bar
+	public ProgressBar getHealthBar() {
+		return healthBar;
 	}
 
 	@Override
@@ -59,13 +83,11 @@ public class Boss extends FighterPlane {
 	public void takeDamage() {
 		if (!isShielded) {
 			super.takeDamage();
-			System.out.println("Boss took damage! Current health: " + getHealth());
-			if (getHealth() <= 0) {
-				destroy();
-				System.out.println("Boss destroyed!");
-			}
+			double healthPercentage = (double) getHealth() / HEALTH; // Calculate remaining health
+			healthBar.setProgress(healthPercentage);
+			System.out.println("Boss health: " + getHealth());
 		} else {
-			System.out.println("Boss is shielded and cannot take damage!");
+			System.out.println("Boss is shielded!");
 		}
 	}
 

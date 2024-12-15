@@ -66,6 +66,7 @@ public class LevelTwo extends LevelParent {
 		// Spawn the boss
 		boss = new Boss();
 		getRoot().getChildren().add(boss);
+		getRoot().getChildren().add(boss.getHealthBar()); // Add the health bar
 		getRoot().getChildren().add(boss.getShieldImage()); // Add the shield image if applicable
 		System.out.println("The boss has arrived! All enemy planes are cleared. Defeat the boss to win the game!");
 	}
@@ -78,6 +79,7 @@ public class LevelTwo extends LevelParent {
 
 		if (bossFightStarted && boss != null) {
 			boss.updateActor();
+			boss.updateHealthBarPosition(); // Update the position of the health bar
 
 			// Handle boss firing projectiles
 			ActiveActorDestructible projectile = boss.fireProjectile();

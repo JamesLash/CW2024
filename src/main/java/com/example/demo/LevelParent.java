@@ -97,6 +97,8 @@ public abstract class LevelParent {
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
 		initializePauseButton(); // Add pause button
+		// Add the CSS file to the scene
+		scene.getStylesheets().add(getClass().getResource("/styling/BossHealthBar.css").toExternalForm());
 		return scene;
 	}
 	public void startGame() {
@@ -139,12 +141,15 @@ public abstract class LevelParent {
 				KeyCode kc = e.getCode();
 				if (kc == KeyCode.UP) user.moveUp();
 				if (kc == KeyCode.DOWN) user.moveDown();
+				if (kc == KeyCode.LEFT) user.moveLeft();
+				if (kc == KeyCode.RIGHT) user.moveRight();
 				if (kc == KeyCode.SPACE) fireProjectile();
 
 		});
 		background.setOnKeyReleased(e -> {
 				KeyCode kc = e.getCode();
-				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
+				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stopVertical();
+				if (kc == KeyCode.LEFT || kc == KeyCode.RIGHT) user.stopHorizontal();
 
 		});
 		root.getChildren().add(background);
@@ -152,8 +157,10 @@ public abstract class LevelParent {
 
 	private void fireProjectile() {
 		ActiveActorDestructible projectile = user.fireProjectile();
-		root.getChildren().add(projectile);
-		userProjectiles.add(projectile);
+		if (projectile != null){
+			root.getChildren().add(projectile);
+			userProjectiles.add(projectile);
+			}
 	}
 
 	private void generateEnemyFire() {
