@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import java.util.List;
+
 public class LevelTwo extends LevelParent {
 
 	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/background2.jpg";
@@ -18,6 +20,7 @@ public class LevelTwo extends LevelParent {
 	@Override
 	protected void initializeFriendlyUnits() {
 		getRoot().getChildren().add(getUser());
+
 	}
 
 	@Override
@@ -59,6 +62,7 @@ public class LevelTwo extends LevelParent {
 		bossFightStarted = true;
 		boss = new Boss();
 		getRoot().getChildren().add(boss);
+		getRoot().getChildren().add(boss.getShieldImage());
 		System.out.println("The boss has arrived! Defeat the boss to win the game!");
 	}
 
@@ -66,11 +70,39 @@ public class LevelTwo extends LevelParent {
 	protected void updateScene() {
 		super.updateScene();
 
-		// Update boss during the boss fight
 		if (bossFightStarted && boss != null) {
-			boss.updateActor(); // Make the boss move and perform actions
+			boss.updateActor();
+
+			// Handle boss firing projectiles
+			ActiveActorDestructible projectile = boss.fireProjectile();
+			if (projectile != null) {
+				getRoot().getChildren().add(projectile);
+			}
+
+			// Update and clean up boss projectiles
+			List<ActiveActorDestructible> bossProjectiles = boss.getBossProjectiles();
+			for (int i = 0; i < bossProjectiles.size(); i++) {
+				ActiveActorDestructible bossProjectile = bossProjectiles.get(i);
+				bossProjectile.updateActor();
+
+				// Check for collision with the player
+				if (bossProjectile.getBoundsInParent().intersects(getUser().getBoundsInParent())) {
+					System.out.println("Player hit by boss projectile!");
+					getUser().takeDamage(); // Reduce player's health
+					bossProjectile.destroy(); // Mark the projectile for destruction
+				}
+
+				// Remove destroyed projectiles
+				if (bossProjectile.isDestroyed()) {
+					getRoot().getChildren().remove(bossProjectile);
+					bossProjectiles.remove(i);
+					i--; // Adjust the index after removal
+				}
+			}
 		}
 	}
+
+
 
 	@Override
 	protected void handleUserProjectileCollisions() {

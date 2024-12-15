@@ -27,6 +27,15 @@ public class Boss extends FighterPlane {
 	private int indexOfCurrentMove;
 	private int framesWithShieldActivated;
 
+	private final ShieldImage shieldImage;
+
+	private final List<ActiveActorDestructible> bossProjectiles = new ArrayList<>();
+
+	public List<ActiveActorDestructible> getBossProjectiles() {
+		return bossProjectiles;
+	}
+
+
 	public Boss() {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
 		movePattern = new ArrayList<>();
@@ -36,6 +45,8 @@ public class Boss extends FighterPlane {
 		isShielded = false;
 		shieldUsed = false; // Shield has not been used yet
 		initializeMovePattern();
+
+		shieldImage = new ShieldImage(INITIAL_X_POSITION, INITIAL_Y_POSITION);
 	}
 
 	@Override
@@ -60,7 +71,12 @@ public class Boss extends FighterPlane {
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
-		return bossFiresInCurrentFrame() ? new BossProjectile(getProjectileInitialPosition()) : null;
+		if (bossFiresInCurrentFrame()) {
+			BossProjectile projectile = new BossProjectile(getProjectileInitialPosition());
+			bossProjectiles.add(projectile);
+			return projectile; // Return the projectile so it can be added to the scene
+		}
+		return null;
 	}
 
 	private void initializeMovePattern() {
@@ -77,10 +93,12 @@ public class Boss extends FighterPlane {
 			framesWithShieldActivated++;
 		} else if (!shieldUsed && shieldShouldBeActivated()) { // Shield can only be used once
 			activateShield();
+			shieldImage.showShield();
 			System.out.println("Boss shield activated!");
 		}
 		if (shieldExhausted()) {
 			deactivateShield();
+			shieldImage.hideShield();
 			System.out.println("Boss shield deactivated!");
 		}
 	}
@@ -108,6 +126,9 @@ public class Boss extends FighterPlane {
 		double initialTranslateY = getTranslateY();
 		moveVertically(getNextMove());
 		double currentPosition = getLayoutY() + getTranslateY();
+
+		shieldImage.setLayoutX(getLayoutX());
+		shieldImage.setLayoutY(currentPosition);
 		if (currentPosition < Y_POSITION_UPPER_BOUND || currentPosition > Y_POSITION_LOWER_BOUND) {
 			setTranslateY(initialTranslateY);
 		}
@@ -137,5 +158,9 @@ public class Boss extends FighterPlane {
 
 	public boolean isShielded() {
 		return isShielded;
+	}
+
+	public ShieldImage getShieldImage(){
+		return shieldImage;
 	}
 }

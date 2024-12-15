@@ -29,7 +29,7 @@ public abstract class LevelParent {
 	private final List<ActiveActorDestructible> friendlyUnits;
 	private final List<ActiveActorDestructible> enemyUnits;
 	protected final List<ActiveActorDestructible> userProjectiles;
-	private final List<ActiveActorDestructible> enemyProjectiles;
+	protected final List<ActiveActorDestructible> enemyProjectiles;
 	
 	private int currentNumberOfEnemies;
 	private final LevelView levelView;
