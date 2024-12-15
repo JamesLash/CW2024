@@ -1,15 +1,21 @@
 package com.example.demo;
 
 
+import java.net.URL;
 import java.util.*;
 
 import com.example.demo.controller.Controller;
 import javafx.animation.*;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
+
 
 
 
@@ -34,6 +40,10 @@ public abstract class LevelParent {
 	
 	private int currentNumberOfEnemies;
 	private final LevelView levelView;
+
+    private StackPane pauseMenu;
+	private boolean isPaused = false;
+	private ImageView pauseButtonImage;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 
@@ -86,9 +96,9 @@ public abstract class LevelParent {
 		initializeBackground();
 		initializeFriendlyUnits();
 		levelView.showHeartDisplay();
+		initializePauseButton(); // Add pause button
 		return scene;
 	}
-
 	public void startGame() {
 		background.requestFocus();
 		timeline.play();
@@ -98,7 +108,6 @@ public abstract class LevelParent {
 		timeline.stop();
 		setLevelListener(levelListener);
 		notifyLevelChange(levelName);
-		System.out.println("sdf");
 	}
 
 	protected void updateScene() {
@@ -261,6 +270,10 @@ public abstract class LevelParent {
 		return screenWidth;
 	}
 
+	protected double getScreenHeight() {
+		return screenHeight;
+	}
+
 	protected boolean userIsDestroyed() {
 		return user.isDestroyed();
 	}
@@ -283,6 +296,98 @@ public abstract class LevelParent {
 		if (listener instanceof Controller) {
 			((Controller) listener).showEndingScreen(victory);
 		}
+	}
+
+	private void initializePauseButton() {
+		// Load the image and create an ImageView
+		Image pauseImage = new Image(getClass().getResource("/com/example/demo/images/pauseButton.png").toExternalForm());
+		ImageView pauseImageView = new ImageView(pauseImage);
+		pauseImageView.setFitWidth(50);
+		pauseImageView.setFitHeight(50);
+
+		// Create a button with the ImageView as its graphic
+		Button pauseButton = new Button();
+		pauseButton.setGraphic(pauseImageView);
+		pauseButton.setLayoutX(getScreenWidth() - 100); // Top-right corner
+		pauseButton.setLayoutY(20);
+		pauseButton.setOnAction(e -> showPauseMenu());
+		root.getChildren().add(pauseButton);
+
+		initializePauseMenu();
+	}
+
+	private void initializePauseMenu() {
+		pauseMenu = new StackPane();
+		pauseMenu.setVisible(false); // Initially hidden
+
+		// Load the background image
+		ImageView backgroundImage = new ImageView(
+				new Image(Objects.requireNonNull(getClass().getResource("/com/example/demo/images/PauseMenu.jpeg")).toExternalForm())
+		);
+		backgroundImage.setFitWidth(getScreenWidth());
+		backgroundImage.setFitHeight(getScreenHeight());
+
+		// Create buttons
+		Button resumeButton = new Button("Resume");
+		resumeButton.setOnAction(e -> resumeGame());
+
+		Button restartButton = new Button("Start Again");
+		restartButton.setOnAction(e -> restartLevel());
+
+		Button quitButton = new Button("Quit");
+		quitButton.setOnAction(e -> System.exit(0)); // Quit the application
+
+		VBox menuButtons = new VBox(20, resumeButton, restartButton, quitButton);
+		menuButtons.setAlignment(Pos.CENTER);
+
+		// Add background and buttons to the StackPane
+		pauseMenu.getChildren().addAll(backgroundImage, menuButtons);
+
+		// Set the size of the pause menu
+		pauseMenu.setLayoutX(0);
+		pauseMenu.setLayoutY(0);
+		pauseMenu.setPrefWidth(getScreenWidth());
+		pauseMenu.setPrefHeight(getScreenHeight());
+
+		root.getChildren().add(pauseMenu);
+
+		URL buttonCss = getClass().getResource("/styling/Button.css");
+		if (buttonCss != null) {
+			System.out.println("Button CSS file loaded: " + buttonCss.toExternalForm());
+			scene.getStylesheets().add(buttonCss.toExternalForm());
+		} else {
+			System.err.println("Button CSS file not found: /styling/Button.css");
+		}
+
+		// Add CSS style classes to the buttons
+		resumeButton.getStyleClass().add("button");
+		restartButton.getStyleClass().add("button");
+		quitButton.getStyleClass().add("button");
+
+	}
+
+
+	// Add this method to show the pause menu and stop the timeline
+	private void showPauseMenu() {
+		isPaused = true;
+		pauseMenu.setVisible(true);
+		timeline.pause(); // Stop the game loop
+	}
+
+	// Add this method to resume the game
+	private void resumeGame() {
+		isPaused = false;
+		pauseMenu.setVisible(false);
+		timeline.play(); // Restart the game loop
+	}
+
+	// Add this method to restart the current level
+	private void restartLevel() {
+		// Clear existing state and restart the current level
+		isPaused = false;
+		pauseMenu.setVisible(false);
+		timeline.stop();
+		notifyLevelChange(this.getClass().getName()); // Restart the current level
 	}
 
 
