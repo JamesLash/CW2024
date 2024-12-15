@@ -268,6 +268,15 @@ public abstract class LevelParent {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
 
+	protected void clearAllEnemies() {
+		for (ActiveActorDestructible enemy : new ArrayList<>(enemyUnits)) { // Iterate over a copy to avoid concurrent modification
+			getRoot().getChildren().remove(enemy); // Remove enemy from the scene
+		}
+		enemyUnits.clear(); // Clear the enemy list
+		System.out.println("All enemies have been cleared!");
+	}
+
+
 
 
 }

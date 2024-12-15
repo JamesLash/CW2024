@@ -60,11 +60,18 @@ public class LevelTwo extends LevelParent {
 
 	private void startBossFight() {
 		bossFightStarted = true;
+
+		// Remove all existing enemy planes
+		clearAllEnemies();
+
+		// Spawn the boss
 		boss = new Boss();
 		getRoot().getChildren().add(boss);
-		getRoot().getChildren().add(boss.getShieldImage());
-		System.out.println("The boss has arrived! Defeat the boss to win the game!");
+		getRoot().getChildren().add(boss.getShieldImage()); // Add the shield image if applicable
+		System.out.println("The boss has arrived! All enemy planes are cleared. Defeat the boss to win the game!");
 	}
+
+
 
 	@Override
 	protected void updateScene() {
