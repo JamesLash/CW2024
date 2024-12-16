@@ -1,17 +1,18 @@
 package com.example.demo;
 
+
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javafx.animation.*;
-import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.*;
 import javafx.scene.input.*;
 import javafx.util.Duration;
 
-public abstract class LevelParent extends Observable {
+
+
+public abstract class LevelParent {
 
 	private static final double SCREEN_HEIGHT_ADJUSTMENT = 150;
 	private static final int MILLISECOND_DELAY = 50;
@@ -27,13 +28,15 @@ public abstract class LevelParent extends Observable {
 
 	private final List<ActiveActorDestructible> friendlyUnits;
 	private final List<ActiveActorDestructible> enemyUnits;
-	private final List<ActiveActorDestructible> userProjectiles;
-	private final List<ActiveActorDestructible> enemyProjectiles;
+	protected final List<ActiveActorDestructible> userProjectiles;
+	protected final List<ActiveActorDestructible> enemyProjectiles;
 	
 	private int currentNumberOfEnemies;
-	private LevelView levelView;
+	private final LevelView levelView;
 
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
+
+
 		this.root = new Group();
 		this.scene = new Scene(root, screenWidth, screenHeight);
 		this.timeline = new Timeline();
@@ -42,8 +45,14 @@ public abstract class LevelParent extends Observable {
 		this.enemyUnits = new ArrayList<>();
 		this.userProjectiles = new ArrayList<>();
 		this.enemyProjectiles = new ArrayList<>();
+//		String path = getClass().getResource(backgroundImageName)).toExternalForm()
+        Image image;
 
-		this.background = new ImageView(new Image(getClass().getResource(backgroundImageName).toExternalForm()));
+//        image = new Image("/Users/xinyuanluo/Desktop/maintainable software/CW2024/src/main/resources/images/background1.jpg");
+		String val = Objects.requireNonNull(getClass().getResource(backgroundImageName)).toString();
+		image = new Image(val);
+
+        this.background = new ImageView(image);
 		this.screenHeight = screenHeight;
 		this.screenWidth = screenWidth;
 		this.enemyMaximumYPosition = screenHeight - SCREEN_HEIGHT_ADJUSTMENT;
@@ -61,6 +70,17 @@ public abstract class LevelParent extends Observable {
 
 	protected abstract LevelView instantiateLevelView();
 
+	private LevelListener levelListener;
+
+	public void setLevelListener(LevelListener listener){
+		this.levelListener = listener;
+	}
+	protected void notifyLevelChange(String newLevelClassName){
+		if(levelListener != null){
+			levelListener.onLevelChange(newLevelClassName);
+		}
+	}
+
 	public Scene initializeScene() {
 		initializeBackground();
 		initializeFriendlyUnits();
@@ -74,11 +94,13 @@ public abstract class LevelParent extends Observable {
 	}
 
 	public void goToNextLevel(String levelName) {
-		setChanged();
-		notifyObservers(levelName);
+		timeline.stop();
+		setLevelListener(levelListener);
+		notifyLevelChange(levelName);
+		System.out.println("sdf");
 	}
 
-	private void updateScene() {
+	protected void updateScene() {
 		spawnEnemyUnits();
 		updateActors();
 		generateEnemyFire();
@@ -103,19 +125,17 @@ public abstract class LevelParent extends Observable {
 		background.setFocusTraversable(true);
 		background.setFitHeight(screenHeight);
 		background.setFitWidth(screenWidth);
-		background.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
+		background.setOnKeyPressed(e ->{
 				KeyCode kc = e.getCode();
 				if (kc == KeyCode.UP) user.moveUp();
 				if (kc == KeyCode.DOWN) user.moveDown();
 				if (kc == KeyCode.SPACE) fireProjectile();
-			}
+
 		});
-		background.setOnKeyReleased(new EventHandler<KeyEvent>() {
-			public void handle(KeyEvent e) {
+		background.setOnKeyReleased(e -> {
 				KeyCode kc = e.getCode();
 				if (kc == KeyCode.UP || kc == KeyCode.DOWN) user.stop();
-			}
+
 		});
 		root.getChildren().add(background);
 	}
@@ -138,10 +158,10 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void updateActors() {
-		friendlyUnits.forEach(plane -> plane.updateActor());
-		enemyUnits.forEach(enemy -> enemy.updateActor());
-		userProjectiles.forEach(projectile -> projectile.updateActor());
-		enemyProjectiles.forEach(projectile -> projectile.updateActor());
+		friendlyUnits.forEach(ActiveActorDestructible::updateActor);
+		enemyUnits.forEach(ActiveActorDestructible::updateActor);
+		userProjectiles.forEach(ActiveActorDestructible::updateActor);
+		enemyProjectiles.forEach(ActiveActorDestructible::updateActor);
 	}
 
 	private void removeAllDestroyedActors() {
@@ -152,8 +172,8 @@ public abstract class LevelParent extends Observable {
 	}
 
 	private void removeDestroyedActors(List<ActiveActorDestructible> actors) {
-		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(actor -> actor.isDestroyed())
-				.collect(Collectors.toList());
+		List<ActiveActorDestructible> destroyedActors = actors.stream().filter(ActiveActorDestructible::isDestroyed)
+				.toList();
 		root.getChildren().removeAll(destroyedActors);
 		actors.removeAll(destroyedActors);
 	}
@@ -162,7 +182,7 @@ public abstract class LevelParent extends Observable {
 		handleCollisions(friendlyUnits, enemyUnits);
 	}
 
-	private void handleUserProjectileCollisions() {
+	protected void handleUserProjectileCollisions() {
 		handleCollisions(userProjectiles, enemyUnits);
 	}
 
@@ -247,5 +267,16 @@ public abstract class LevelParent extends Observable {
 	private void updateNumberOfEnemies() {
 		currentNumberOfEnemies = enemyUnits.size();
 	}
+
+	protected void clearAllEnemies() {
+		for (ActiveActorDestructible enemy : new ArrayList<>(enemyUnits)) { // Iterate over a copy to avoid concurrent modification
+			getRoot().getChildren().remove(enemy); // Remove enemy from the scene
+		}
+		enemyUnits.clear(); // Clear the enemy list
+		System.out.println("All enemies have been cleared!");
+	}
+
+
+
 
 }
