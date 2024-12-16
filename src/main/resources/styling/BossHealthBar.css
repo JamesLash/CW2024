@@ -1,0 +1,8 @@
+.progress-bar {
+    -fx-accent: red; /* Red color for the health */
+    -fx-background-color: black; /* Background color for the bar */
+    -fx-border-color: white; /* Optional border */
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
