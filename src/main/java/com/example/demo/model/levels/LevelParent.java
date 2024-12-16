@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.*;
 
 import com.example.demo.controller.Controller;
+import com.example.demo.model.actors.Boss;
 import com.example.demo.model.interfaces.LevelListener;
 import javafx.animation.*;
 import javafx.geometry.Pos;
@@ -21,6 +22,9 @@ import com.example.demo.model.actors.FighterPlane;
 import com.example.demo.model.actors.UserPlane;
 import com.example.demo.view.LevelView;
 
+/**
+ * Represents the base class for all levels in the game.
+ */
 
 public abstract class LevelParent {
 
@@ -40,7 +44,7 @@ public abstract class LevelParent {
 	private final List<ActiveActorDestructible> enemyUnits;
 	protected final List<ActiveActorDestructible> userProjectiles;
 	protected final List<ActiveActorDestructible> enemyProjectiles;
-	
+
 	private int currentNumberOfEnemies;
 	private final LevelView levelView;
 
@@ -48,6 +52,14 @@ public abstract class LevelParent {
 	private boolean isPaused = false;
 	private ImageView pauseButtonImage;
 
+	private Boss boss;
+	public Boss getBoss() {
+		return boss;
+	}
+
+	/**
+	 * Initializes the level with a background, screen size, and player health.
+	 */
 	public LevelParent(String backgroundImageName, double screenHeight, double screenWidth, int playerInitialHealth) {
 
 
@@ -76,7 +88,9 @@ public abstract class LevelParent {
 		friendlyUnits.add(user);
 	}
 
-	protected abstract void initializeFriendlyUnits();
+	protected void initializeFriendlyUnits() {
+		getRoot().getChildren().add(getUser()); // Add UserPlane to the scene graph
+	}
 
 	protected abstract void checkIfGameOver();
 
@@ -95,6 +109,9 @@ public abstract class LevelParent {
 		}
 	}
 
+	/**
+	 * Initializes and returns the scene for the level.
+	 */
 	public Scene initializeScene() {
 		initializeBackground();
 		initializeFriendlyUnits();
@@ -104,6 +121,10 @@ public abstract class LevelParent {
 		scene.getStylesheets().add(getClass().getResource("/styling/BossHealthBar.css").toExternalForm());
 		return scene;
 	}
+
+	/**
+	 * Starts the game loop.
+	 */
 	public void startGame() {
 		background.requestFocus();
 		timeline.play();
@@ -301,11 +322,40 @@ public abstract class LevelParent {
 	}
 
 	protected void endGame(boolean victory) {
-		timeline.stop();
-		LevelListener listener = levelListener;
-		if (listener instanceof Controller) {
-			((Controller) listener).showEndingScreen(victory);
+		timeline.stop(); // Stop the game loop
+
+		if (victory) {
+			// Play the boss explosion animation
+			if (boss != null) {
+				boss.destroy(); // Trigger the boss explosion
+
+				// Delay before showing the winImage
+				delayAndExecute(Duration.seconds(0.5), () -> {
+					levelView.showWinImage(); // Show the winImage after the delay
+				});
+			}
+		} else {
+			// Ensure UserPlane is part of the scene graph
+			if (user.getScene() == null) {
+				getRoot().getChildren().add(user); // Temporarily add UserPlane to the scene graph
+			}
+
+			// Play the user explosion animation
+			user.destroy(); // Trigger the user explosion
+
+			// Delay before showing the gameOverImage
+			delayAndExecute(Duration.seconds(0.5), () -> {
+				levelView.showGameOverImage(); // Show the gameOverImage after the delay
+			});
 		}
+
+		// Notify the controller to show the ending screen after the delay
+		delayAndExecute(Duration.seconds(1.0), () -> {
+			LevelListener listener = levelListener;
+			if (listener instanceof Controller) {
+				((Controller) listener).showEndingScreen(victory);
+			}
+		});
 	}
 
 	private void initializePauseButton() {
@@ -398,6 +448,12 @@ public abstract class LevelParent {
 		pauseMenu.setVisible(false);
 		timeline.stop();
 		notifyLevelChange(this.getClass().getName()); // Restart the current level
+	}
+
+	protected void delayAndExecute(Duration duration, Runnable task) {
+		PauseTransition pause = new PauseTransition(duration);
+		pause.setOnFinished(e -> task.run());
+		pause.play();
 	}
 
 

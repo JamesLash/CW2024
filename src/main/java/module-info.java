@@ -3,9 +3,12 @@ module com.example.demo {
     requires javafx.fxml;
     requires java.desktop;
 
-
-    opens com.example.demo to javafx.fxml;
     exports com.example.demo.controller;
+    exports com.example.demo.view;
+    exports com.example.demo.model.actors;
+    exports com.example.demo.model.interfaces;
+    exports com.example.demo.model.levels;
+    opens com.example.demo.controller to javafx.fxml;
     opens com.example.demo.view to javafx.fxml;
     opens com.example.demo.model.actors to javafx.fxml;
     opens com.example.demo.model.interfaces to javafx.fxml;

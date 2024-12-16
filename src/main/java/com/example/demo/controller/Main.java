@@ -11,15 +11,15 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		stage.setTitle(TITLE);
-		stage.setResizable(false);
-		stage.setHeight(SCREEN_HEIGHT);
-		stage.setWidth(SCREEN_WIDTH);
+		stage.setTitle(TITLE); // Set the title of the application
+		stage.setResizable(false); // Make the window non-resizable
+		stage.setHeight(SCREEN_HEIGHT); // Set the height of the window
+		stage.setWidth(SCREEN_WIDTH); // Set the width of the window
 		Controller myController = new Controller(stage);
-		myController.launchGame();
+		myController.launchGame(); // Launch the game
 	}
 
 	public static void main(String[] args) {
-		launch();
+		launch(); // Start the JavaFX application
 	}
 }

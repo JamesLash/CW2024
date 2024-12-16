@@ -7,6 +7,10 @@ import com.example.demo.view.LevelView;
 
 import java.util.List;
 
+/**
+ * Represents the second level of the game.
+ */
+
 public class LevelTwo extends LevelParent {
 
 	private static final String BACKGROUND_IMAGE_NAME = "/com/example/demo/images/backgrounds/background2.jpg";
@@ -18,6 +22,7 @@ public class LevelTwo extends LevelParent {
 	private Boss boss; // Boss instance
 	private boolean bossFightStarted = false; // Tracks if the boss fight has started
 
+	// Initialize LevelTwo
 	public LevelTwo(double screenHeight, double screenWidth) {
 		super(BACKGROUND_IMAGE_NAME, screenHeight, screenWidth, PLAYER_INITIAL_HEALTH);
 	}
@@ -46,7 +51,7 @@ public class LevelTwo extends LevelParent {
 	protected void checkIfGameOver() {
 		if (userIsDestroyed()) {
 			endGame(false);
-		} else if (bossFightStarted && boss.isDestroyed()) {
+		} else if (bossFightStarted && boss != null && boss.isDestroyed()) {
 			endGame(true);
 		} else if (!bossFightStarted && userHasReachedKillTarget()) {
 			startBossFight();

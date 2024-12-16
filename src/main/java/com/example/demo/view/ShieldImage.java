@@ -5,10 +5,14 @@ import javafx.scene.image.ImageView;
 
 import java.util.Objects;
 
+/**
+ * Represents the shield image for the boss.
+ */
 public class ShieldImage extends ImageView {
-	
+
 	private static final int SHIELD_SIZE = 200;
-	
+
+	// Initialize the shield image at a specific position
 	public ShieldImage(double xPosition, double yPosition) {
 		this.setLayoutX(xPosition);
 		this.setLayoutY(yPosition);
@@ -18,13 +22,13 @@ public class ShieldImage extends ImageView {
 		this.setFitWidth(SHIELD_SIZE);
 	}
 
-
+	// Show the shield
 	public void showShield() {
 		this.setVisible(true);
 	}
-	
+
+	// Hide the shield
 	public void hideShield() {
 		this.setVisible(false);
 	}
-
 }

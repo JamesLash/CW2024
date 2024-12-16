@@ -12,19 +12,23 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
+/**
+ * Displays the ending screen with options to play again or quit.
+ */
 public class EndingScreen {
 
     private final MenuListener listener;
 
+    // Initialize the ending screen with a menu listener
     public EndingScreen(MenuListener listener) {
         this.listener = listener;
     }
 
+    // Create and return the ending scene
     public Scene createEndingScene(Stage stage, boolean victory) {
-        // Root pane
-        StackPane root = new StackPane();
+        StackPane root = new StackPane(); // Root pane for layout
 
-        // Background Image (Win or Loss)
+        // Display win or loss background
         ImageView backgroundImage = new ImageView(
                 victory
                         ? new WinImage(stage.getWidth(), stage.getHeight()).getImage()
@@ -33,42 +37,33 @@ public class EndingScreen {
         backgroundImage.setFitWidth(stage.getWidth());
         backgroundImage.setFitHeight(stage.getHeight());
 
-        // Buttons
+        // Add buttons for play again and quit
         Button playAgainButton = new Button("Play Again");
         Button quitButton = new Button("Quit");
 
-        // Add Event Handlers
         playAgainButton.setOnAction(e -> listener.onStartGame());
         quitButton.setOnAction(e -> listener.onQuit());
 
-        // Arrange buttons horizontally
-        HBox buttonBox = new HBox(20, playAgainButton, quitButton); // Spacing of 20px between buttons
+        // Arrange buttons in a horizontal layout
+        HBox buttonBox = new HBox(20, playAgainButton, quitButton);
         buttonBox.setAlignment(Pos.CENTER);
 
-        // Combine title and buttons vertically
-        VBox vbox = new VBox(buttonBox); // Spacing of 40px between title and buttons
+        // Combine buttons into a vertical layout
+        VBox vbox = new VBox(buttonBox);
         vbox.setAlignment(Pos.BOTTOM_CENTER);
 
-        // Add everything to the root pane
-        root.getChildren().addAll(backgroundImage, vbox);
+        root.getChildren().addAll(backgroundImage, vbox); // Add elements to root pane
 
-        // Create the scene
         Scene scene = new Scene(root, stage.getWidth(), stage.getHeight());
 
-        // Apply Button.css for styling buttons
+        // Add button styling
         URL buttonCss = getClass().getResource("/styling/Button.css");
         if (buttonCss != null) {
-            System.out.println("Button CSS file loaded: " + buttonCss.toExternalForm());
             scene.getStylesheets().add(buttonCss.toExternalForm());
-        } else {
-            System.err.println("Button CSS file not found: /styling/Button.css");
         }
-
-        // Add CSS style classes to the buttons
         playAgainButton.getStyleClass().add("button");
         quitButton.getStyleClass().add("button");
 
-        // Return the complete scene
-        return scene;
+        return scene; // Return the completed scene
     }
 }

@@ -4,8 +4,12 @@ import javafx.scene.image.*;
 
 import java.util.Objects;
 
+/**
+ * Represents an active actor in the game.
+ */
+
 public abstract class ActiveActor extends ImageView {
-	
+
 	private static final String IMAGE_LOCATION = "/com/example/demo/images/";
 
 	public ActiveActor(String imageName, int imageHeight, double initialXPos, double initialYPos) {

@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Controller implements LevelListener, MenuListener {
 
-	private static final String LEVEL_ONE_CLASS_NAME = "levels.LevelOne";
+	private static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.model.levels.LevelOne";
 	private final Stage stage;
 
 	public Controller(Stage stage) {
@@ -24,7 +24,7 @@ public class Controller implements LevelListener, MenuListener {
 		MenuScreen menuScreen = new MenuScreen(this);
 		Scene menuScene = menuScreen.createMenuScene(stage);
 		stage.setScene(menuScene);
-		stage.show();
+		stage.show(); // Show the menu scene
 	}
 
 	private void goToLevel(String className) throws ClassNotFoundException, NoSuchMethodException,
@@ -34,36 +34,36 @@ public class Controller implements LevelListener, MenuListener {
 		LevelParent myLevel = (LevelParent) constructor.newInstance(stage.getHeight(), stage.getWidth());
 		myLevel.setLevelListener(this);
 		Scene scene = myLevel.initializeScene();
-		stage.setScene(scene);
-		myLevel.startGame();
+		stage.setScene(scene); // Set the scene for the level
+		myLevel.startGame(); // Start the level game loop
 	}
 
 	@Override
 	public void onStartGame() {
 		try {
-			goToLevel(LEVEL_ONE_CLASS_NAME);
+			goToLevel(LEVEL_ONE_CLASS_NAME); // Launch the first level
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(); // Log any errors during level launch
 		}
 	}
 
 	@Override
 	public void onQuit() {
-		System.exit(0);
+		System.exit(0); // Exit the application
 	}
 
 	@Override
 	public void onLevelChange(String newLevelClassName) {
 		try {
-			goToLevel(newLevelClassName);
+			goToLevel(newLevelClassName); // Transition to a new level
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(); // Log any errors during level transition
 		}
 	}
 
 	public void showEndingScreen(boolean victory) {
 		EndingScreen endingScreen = new EndingScreen(this);
 		Scene endingScene = endingScreen.createEndingScene(stage, victory);
-		stage.setScene(endingScene);
+		stage.setScene(endingScene); // Display the ending screen
 	}
 }
