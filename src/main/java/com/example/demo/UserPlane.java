@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import javafx.scene.Group;
+
 public class UserPlane extends FighterPlane {
 
 	private static final String IMAGE_NAME = "userplane.png";
@@ -20,10 +22,10 @@ public class UserPlane extends FighterPlane {
 
 	public UserPlane(int initialHealth) {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, initialHealth);
-		verticalVelocityMultiplier =0 ;
+		verticalVelocityMultiplier = 0;
 		horizontalVelocityMultiplier = 0;
 	}
-	
+
 	@Override
 	public void updatePosition() {
 		if (isMovingVertically()) {
@@ -35,21 +37,21 @@ public class UserPlane extends FighterPlane {
 			}
 		}
 
-		if (isMovingHorizintally()) {
+		if (isMovingHorizontally()) {
 			double initialTranslateX = getTranslateX();
 			this.moveHorizontally(HORIZONTAL_VELOCITY * horizontalVelocityMultiplier);
-			double newXPosition = getLayoutY() + getTranslateY();
+			double newXPosition = getLayoutX() + getTranslateX();
 			if (newXPosition < X_UPPER_BOUND || newXPosition > X_LOWER_BOUND) {
 				this.setTranslateX(initialTranslateX);
 			}
 		}
 	}
-	
+
 	@Override
 	public void updateActor() {
 		updatePosition();
 	}
-	
+
 	@Override
 	public ActiveActorDestructible fireProjectile() {
 		double projectileX = getLayoutX() + getTranslateX() + PROJECTILE_X_OFFSET;
@@ -57,11 +59,26 @@ public class UserPlane extends FighterPlane {
 		return new UserProjectile(projectileX, projectileY);
 	}
 
+	@Override
+	public void destroy() {
+		super.destroy();
+		double explosionX = getLayoutX() + getTranslateX();
+		double explosionY = getLayoutY() + getTranslateY();
+
+		// Trigger Boss-like explosion for user destruction
+		BossExplosion userExplosion = new BossExplosion(explosionX, explosionY);
+		Group root = (Group) getScene().getRoot();
+		root.getChildren().add(userExplosion);
+		userExplosion.playAnimation(root);
+
+		System.out.println("User plane destroyed! Game over.");
+	}
+
 	private boolean isMovingVertically() {
 		return verticalVelocityMultiplier != 0;
 	}
 
-	private boolean isMovingHorizintally() {
+	private boolean isMovingHorizontally() {
 		return horizontalVelocityMultiplier != 0;
 	}
 
@@ -96,5 +113,4 @@ public class UserPlane extends FighterPlane {
 	public void incrementKillCount() {
 		numberOfKills++;
 	}
-
 }

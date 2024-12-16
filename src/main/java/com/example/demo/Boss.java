@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import javafx.scene.control.ProgressBar;
-
+import javafx.scene.Group;
 import java.util.*;
 
 public class Boss extends FighterPlane {
@@ -30,7 +30,6 @@ public class Boss extends FighterPlane {
 	private int framesWithShieldActivated;
 
 	private final ShieldImage shieldImage;
-
 	private ProgressBar healthBar;
 
 	private final List<ActiveActorDestructible> bossProjectiles = new ArrayList<>();
@@ -38,7 +37,6 @@ public class Boss extends FighterPlane {
 	public List<ActiveActorDestructible> getBossProjectiles() {
 		return bossProjectiles;
 	}
-
 
 	public Boss() {
 		super(IMAGE_NAME, IMAGE_HEIGHT, INITIAL_X_POSITION, INITIAL_Y_POSITION, HEALTH);
@@ -50,12 +48,11 @@ public class Boss extends FighterPlane {
 		shieldUsed = false; // Shield has not been used yet
 		initializeMovePattern();
 
-		shieldImage = new ShieldImage(INITIAL_X_POSITION+100, INITIAL_Y_POSITION+30);
+		shieldImage = new ShieldImage(INITIAL_X_POSITION + 100, INITIAL_Y_POSITION + 30);
 
 		// Initialize the health bar
 		healthBar = new ProgressBar(1.0); // Full health initially
 		healthBar.getStyleClass().add("progress-bar");
-
 
 		// Position the health bar relative to the boss
 		healthBar.setLayoutX(INITIAL_X_POSITION);
@@ -63,7 +60,7 @@ public class Boss extends FighterPlane {
 	}
 
 	// Method to update health bar position
-    protected void updateHealthBarPosition() {
+	protected void updateHealthBarPosition() {
 		healthBar.setLayoutX(getLayoutX() + getTranslateX() - 30);
 		healthBar.setLayoutY(getLayoutY() + getTranslateY() - 20); // Keep it above the boss
 	}
@@ -83,13 +80,23 @@ public class Boss extends FighterPlane {
 	public void takeDamage() {
 		if (!isShielded) {
 			super.takeDamage();
-			double healthPercentage = (double) getHealth() / HEALTH; // Calculate remaining health
+			double explosionX = getLayoutX() + getTranslateX();
+			double explosionY = getLayoutY() + getTranslateY();
+
+			// Enlarge explosion size for boss hits (e.g., 200px)
+			ExplosionAnimation explosion = new ExplosionAnimation(explosionX, explosionY, 200);
+			Group root = (Group) getScene().getRoot();
+			root.getChildren().add(explosion);
+			explosion.playAnimation(root);
+
+			double healthPercentage = (double) getHealth() / HEALTH;
 			healthBar.setProgress(healthPercentage);
 			System.out.println("Boss health: " + getHealth());
 		} else {
 			System.out.println("Boss is shielded!");
 		}
 	}
+
 
 	@Override
 	public ActiveActorDestructible fireProjectile() {
@@ -182,7 +189,23 @@ public class Boss extends FighterPlane {
 		return isShielded;
 	}
 
-	public ShieldImage getShieldImage(){
+	public ShieldImage getShieldImage() {
 		return shieldImage;
 	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		double explosionX = getLayoutX() + getTranslateX();
+		double explosionY = getLayoutY() + getTranslateY();
+
+		// Bigger explosion for boss destruction
+		BossExplosion bossExplosion = new BossExplosion(explosionX, explosionY);
+		Group root = (Group) getScene().getRoot();
+		root.getChildren().add(bossExplosion);
+		bossExplosion.playAnimation(root);
+
+		System.out.println("Boss destroyed!");
+	}
+
 }

@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import javafx.scene.Group;
+
 public class EnemyPlane extends FighterPlane {
 
 	private static final String IMAGE_NAME = "enemyplane.png";
@@ -33,5 +35,21 @@ public class EnemyPlane extends FighterPlane {
 	public void updateActor() {
 		updatePosition();
 	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		double explosionX = getLayoutX() + getTranslateX();
+		double explosionY = getLayoutY() + getTranslateY();
+
+		// Use default explosion size
+		ExplosionAnimation explosion = new ExplosionAnimation(explosionX, explosionY);
+		Group root = (Group) getScene().getRoot();
+		root.getChildren().add(explosion);
+		explosion.playAnimation(root);
+
+		System.out.println("Enemy destroyed!");
+	}
+
 
 }
