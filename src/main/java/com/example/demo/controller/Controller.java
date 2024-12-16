@@ -1,16 +1,19 @@
 package com.example.demo.controller;
 
-import com.example.demo.*;
+import com.example.demo.model.interfaces.LevelListener;
+import com.example.demo.model.interfaces.MenuListener;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import com.example.demo.controller.Main;
+import com.example.demo.model.levels.LevelParent;
+import com.example.demo.view.EndingScreen;
+import com.example.demo.view.MenuScreen;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class Controller implements LevelListener, MenuListener {
 
-	private static final String LEVEL_ONE_CLASS_NAME = "com.example.demo.LevelOne";
+	private static final String LEVEL_ONE_CLASS_NAME = "levels.LevelOne";
 	private final Stage stage;
 
 	public Controller(Stage stage) {
