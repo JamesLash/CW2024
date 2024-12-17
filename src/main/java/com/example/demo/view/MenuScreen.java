@@ -54,10 +54,19 @@ public class MenuScreen {
         startButton.setOnAction(e -> listener.onStartGame());
         quitButton.setOnAction(e -> listener.onQuit());
 
-        // Add elements to the root pane
+
+        // Add button styling
+        URL buttonCss = getClass().getResource("/styling/Button.css");
+        startButton.getStyleClass().add("button");
+        quitButton.getStyleClass().add("button");
+
+// Add elements to the root pane
         root.getChildren().addAll(background, vbox);
 
-        // Create and return the scene
-        return new Scene(root, stage.getWidth(), stage.getHeight());
+// Create and return the scene
+        Scene scene = new Scene(root, stage.getWidth(), stage.getHeight());
+        scene.getStylesheets().add(buttonCss.toExternalForm()); // Add CSS file
+        return scene;
+
     }
 }
